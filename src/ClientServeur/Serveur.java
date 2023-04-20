@@ -17,15 +17,16 @@ public class Serveur {
             DatagramPacket paquet = new DatagramPacket(buffer, buffer.length);
             serveurSocket.receive(paquet);
             System.out.println("Nouveau client " + paquet.getAddress() + ":" + paquet.getPort());
-            System.out.println("Paquet reçu " + new String(paquet.getData(), 0, paquet.getLength()));
+            System.out.println("Message envoyé côté client: " + new String(paquet.getData(), 0, paquet.getLength()));
 
-            //Envoie du message
-            buffer = "Serveur RX302 ready".getBytes();
+            // Ré-envoie du message du client depuis le serveur vers client
+            buffer = new String(paquet.getData(), 0, paquet.getLength()).getBytes();
             DatagramPacket serveurPaquet = new DatagramPacket(buffer, buffer.length, paquet.getAddress(), paquet.getPort());
             serveurSocket.send(serveurPaquet);
 
             //fermeture du socket
             serveurSocket.close();
+
         } catch (SocketException e) {
             System.out.println("Erreur Socket " + e.getMessage());
         } catch (IOException e) {
