@@ -3,7 +3,7 @@ package ClientServeur;
 import java.io.IOException;
 import java.net.*;
 
-public class Client {
+public class Client implements Runnable{
     public static void main(String[] args) {
         try {
             //création du Socket
@@ -28,5 +28,10 @@ public class Client {
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    @Override
+    public void run() {
+
     }
 }

@@ -12,6 +12,10 @@ public class Serveur {
             //création du Socket
             DatagramSocket serveurSocket = new DatagramSocket(3000);
 
+            Serveur runnable = new Serveur();
+            Thread t = new Thread();
+            t.start();
+
             //Reception du message
             byte[] buffer = new byte[1024];
             DatagramPacket paquet = new DatagramPacket(buffer, buffer.length);
