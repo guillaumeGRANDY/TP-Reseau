@@ -1,23 +1,28 @@
 import java.net.DatagramSocket;
-import java.net.SocketException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PortScanner {
     public static void main(String[] args) {
-        String ip = "127.0.0.1"; // adresse IP à scanner
-        int startPort = 1; // premier port à scanner
-        int endPort = 1024; // dernier port à scanner
+        Map<Integer, String> result = scanUdpPorts(1, 5400);
+        for (Map.Entry<Integer, String> entry : result.entrySet()) {
+            System.out.println("Port " + entry.getKey() + ": " + entry.getValue());
+        }
+    }
 
+    public static Map<Integer, String> scanUdpPorts(int startPort, int endPort) {
+        Map<Integer, String> resultMap = new HashMap<>();
         for (int port = startPort; port <= endPort; port++) {
             try {
-                DatagramSocket socket = new DatagramSocket(null);
-                socket.setReuseAddress(true);
-                socket.bind(new InetSocketAddress(ip, port));
-                System.out.println("Port " + port + " ouvert");
+                DatagramSocket socket = new DatagramSocket(port);
                 socket.close();
-            } catch (SocketException ex) {
-                System.out.println("Port " + port + " fermé");
+                resultMap.put(port, "Fermé");
+            } catch (SocketException e) {
+                resultMap.put(port, "Ouvert");
             }
         }
+        return resultMap;
     }
 }
