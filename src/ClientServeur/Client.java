@@ -8,40 +8,55 @@ import java.util.Scanner;
 public class Client {
     public static void main(String[] args) {
         try {
-            // Création du socket UDP
+            // Création du socket UDP du client
             DatagramSocket clientSocket = new DatagramSocket();
 
-            // Définition de l'adresse IP et du port du serveur
-            InetAddress serverIPAddress = InetAddress.getByName("localhost");
-            int serverPort = 9876;
+            // Adresse du serveur
+            InetAddress serverAddress = InetAddress.getByName("localhost");
 
-            // Boucle d'envoi de messages
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                // Lecture du message à envoyer
-                System.out.print("Entrez un message à envoyer au serveur : ");
-                String message = scanner.nextLine();
+            // Plage de ports réduite du serveur
+            int minServerPort = 8000;
+            int maxServerPort = 8010;
 
-                // Envoi du message au serveur
-                byte[] sendData = message.getBytes();
-                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverIPAddress, serverPort);
-                clientSocket.send(sendPacket);
+            // Test des ports de la plage de ports réduite du serveur
+            for (int port = minServerPort; port <= maxServerPort; port++) {
+                try {
+                    // Boucle d'envoi de messages
+                    Scanner scanner = new Scanner(System.in);
+                    while (true) {
+                        // Lecture du message à envoyer
+                        System.out.print("Entrez un message à envoyer au serveur : ");
+                        String message = scanner.nextLine();
 
-                // Réception de la réponse du serveur
-                byte[] receiveData = new byte[1024];
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                clientSocket.receive(receivePacket);
-                String replyMessage = new String(receivePacket.getData()).trim();
-                System.out.println("Réponse du serveur : " + replyMessage);
+                        // Envoi du message au serveur
+                        byte[] sendData = message.getBytes();
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddress, port);
+                        clientSocket.send(sendPacket);
 
-                // Vérification si l'utilisateur veut continuer à envoyer des messages
-                System.out.print("Voulez-vous envoyer un autre message ? (oui/non) : ");
-                String response = scanner.nextLine().toLowerCase();
-                if (!response.equals("oui")) {
-                    break;
+                        // Réception de la réponse du serveur
+                        byte[] receiveData = new byte[1024];
+                        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                        clientSocket.receive(receivePacket);
+                        String replyMessage = new String(receivePacket.getData()).trim();
+                        System.out.println("Réponse du serveur : " + replyMessage);
+
+                        // Vérification si l'utilisateur veut continuer à envoyer des messages
+                        System.out.print("Voulez-vous envoyer un autre message ? (oui/non) : ");
+                        String response = scanner.nextLine().toLowerCase();
+                        if (!response.equals("oui")) {
+                            break;
+                        }
+                    }
+
+                    // Fermeture du socket
+                    clientSocket.close();
+                    return; // Sortie de la boucle des ports si la connexion réussie
+                } catch (Exception e) {
+                    System.out.println("Impossible de se connecter au serveur sur le port " + port + ", en essayant le suivant...");
                 }
             }
 
+            System.err.println("Impossible de se connecter au serveur sur la plage de ports spécifiée.");
             // Fermeture du socket
             clientSocket.close();
         } catch (Exception e) {
