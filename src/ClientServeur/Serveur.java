@@ -8,8 +8,10 @@ import java.util.concurrent.ExecutorService;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 public class Serveur {
-
+    private static ArrayList<ServeurProcess> serveurProcessesTable;
     public static void main(String[] args) {
+    serveurProcessesTable=new ArrayList<>();
+
         try {
             //création du Socket
             ServerSocket listener = new ServerSocket(3000);
