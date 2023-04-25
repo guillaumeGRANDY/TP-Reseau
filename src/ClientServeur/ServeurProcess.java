@@ -27,8 +27,6 @@ public class ServeurProcess implements Runnable {
 
             System.out.println(in.nextLine());
 
-            Thread.sleep(10000);
-
             out.println("Je t'ai entendu");
             out.flush();
 
@@ -38,8 +36,6 @@ public class ServeurProcess implements Runnable {
             throw new RuntimeException(e);
         } catch (IOException e) {
             System.out.println("Erreur Receive");
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
