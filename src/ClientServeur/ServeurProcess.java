@@ -1,42 +1,38 @@
 package ClientServeur;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 public class ServeurProcess implements Runnable {
-    private final Socket serveurSocket;
-    private ArrayList<ServeurProcess> serveurProcessTable;
-    public ServeurProcess(Socket serveurSocket, ArrayList<ServeurProcess> serveurProcessTable) {
-        this.serveurSocket = serveurSocket;
-        this.serveurProcessTable=serveurProcessTable;
-    }
 
-    public ServeurProcess(Socket serveurSocket) {
-        this.serveurSocket = serveurSocket;
+    private final DatagramSocket socket;
+    private final DatagramPacket receivePacket;
+    private final String clientAddress;
+    private final int clientPort;
+
+    public ServeurProcess(DatagramSocket socket, DatagramPacket receivePacket, String clientAddress, int clientPort) {
+        this.socket = socket;
+        this.receivePacket = receivePacket;
+        this.clientAddress = clientAddress;
+        this.clientPort = clientPort;
     }
 
     @Override
     public void run() {
         try {
-            Scanner in = new Scanner(serveurSocket.getInputStream());
-            PrintWriter out = new PrintWriter(serveurSocket.getOutputStream());
+            // Récupération du message envoyé par le client
+            String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
-            System.out.println(in.nextLine());
+            // Affichage du message
+            System.out.println("Message reçu de " + clientAddress + ":" + clientPort + " : " + message);
 
-            out.println("Je t'ai entendu");
-            out.flush();
-
-            serveurSocket.close();
-        } catch (SocketException e) {
-            System.out.println("Erreur Socket " + e.getMessage());
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            System.out.println("Erreur Receive");
-            throw new RuntimeException(e);
+            // Envoi d'une réponse au client
+            String response = "Je t'ai entendu";
+            DatagramPacket sendPacket = new DatagramPacket(response.getBytes(), response.length(), InetAddress.getByName(clientAddress), clientPort);
+            socket.send(sendPacket);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'envoi de la réponse au client: " + e.getMessage());
         }
     }
 }

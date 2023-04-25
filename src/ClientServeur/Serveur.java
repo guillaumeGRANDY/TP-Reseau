@@ -1,25 +1,48 @@
 package ClientServeur;
 
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
-import static java.util.concurrent.Executors.newFixedThreadPool;
-
-public class Serveur {
-
+public class Serveur{
     public static void main(String[] args) {
         try {
-            //création du Socket
-            ServerSocket listener = new ServerSocket(3000);
-            ExecutorService pool = newFixedThreadPool(20);
+            // Création du socket UDP du serveur
+            DatagramSocket serverSocket = new DatagramSocket(9876);
+
+            byte[] receiveData = new byte[1024];
+            byte[] sendData;
+
+            System.out.println("Serveur démarré.");
+
             while (true) {
-                Socket newClient = listener.accept();
-                pool.execute(new ServeurProcess(newClient));
+                // Réception du paquet du client
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                serverSocket.receive(receivePacket);
+
+                // Conversion du message reçu en une chaîne de caractères
+                String message = new String(receivePacket.getData()).trim();
+
+                // Affichage du message reçu
+                System.out.println("Message reçu du client : " + message);
+
+                // Réponse du serveur
+                String replyMessage = "Je reçois ton message";
+                sendData = replyMessage.getBytes();
+
+                // Récupération de l'adresse IP et du port du client
+                InetAddress clientIPAddress = receivePacket.getAddress();
+                int clientPort = receivePacket.getPort();
+
+                // Envoi de la réponse au client
+                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientIPAddress, clientPort);
+                serverSocket.send(sendPacket);
+
+                // Réinitialisation du tableau de données pour la prochaine réception
+                receiveData = new byte[1024];
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e);
         }
     }
 }
