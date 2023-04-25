@@ -11,19 +11,8 @@ public class ServeurProcess implements Runnable {
     private final Socket serveurSocket;
     private PrintWriter out;
     private Scanner in;
+    private String pseudo;
     private static ArrayList<ServeurProcess> serveurProcesses = new ArrayList<>();
-
-    public ServeurProcess(Socket serveurSocket, ArrayList<ServeurProcess> serveurProcessesTable) {
-        this.serveurSocket = serveurSocket;
-        this.serveurProcesses = serveurProcessesTable;
-        this.serveurProcesses.add(this);
-        try {
-            out = new PrintWriter(serveurSocket.getOutputStream());
-            in = new Scanner(serveurSocket.getInputStream());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public ServeurProcess(Socket serveurSocket) {
         this.serveurSocket = serveurSocket;
@@ -34,11 +23,21 @@ public class ServeurProcess implements Runnable {
             throw new RuntimeException(e);
         }
         serveurProcesses.add(this);
-        sendMessageAll("Serveur - Quelqu'un à rejoint la conversation");
     }
 
     @Override
     public void run() {
+
+        out.println("Entrez un pseudo");
+        out.flush();
+
+        if(in.hasNextLine()) {
+            pseudo = in.nextLine();
+            out.println("Votre pseudo est "+pseudo);
+            out.flush();
+            sendSystemMessageAll(pseudo+" à rejoint la conversation");
+        }
+
         String message="";
         try {
             if(in.hasNextLine()) {
@@ -51,10 +50,10 @@ public class ServeurProcess implements Runnable {
 
             serveurSocket.close();
             serveurProcesses.remove(this);
-            sendMessageAll("Serveur - Quelqu'un à quitté la conversation");
+            sendSystemMessageAll(pseudo+" à quitté la conversation");
             if(serveurProcesses.size()==1)
             {
-                sendMessageAll("Serveur - Tu es seul sur le serveur");
+                sendSystemMessageAll("Tu es seul sur le serveur");
             }
 
             in.close();
@@ -68,14 +67,21 @@ public class ServeurProcess implements Runnable {
         }
     }
 
-    public void sendMessage(String message) {
-        out.println(message);
+    public void sendMessage(String message,String pseudoSender) {
+        out.println(pseudoSender+" - "+message);
         out.flush();
     }
 
     public void sendMessageAll(String message) {
         for (ServeurProcess serveurProcess : serveurProcesses) {
-            if (serveurProcess != this) serveurProcess.sendMessage(message);
+            if (serveurProcess != this) serveurProcess.sendMessage(message,pseudo);
         }
     }
+
+    public void sendSystemMessageAll(String message) {
+        for (ServeurProcess serveurProcess : serveurProcesses) {
+            if (serveurProcess != this) serveurProcess.sendMessage(message,"Système");
+        }
+    }
+
 }

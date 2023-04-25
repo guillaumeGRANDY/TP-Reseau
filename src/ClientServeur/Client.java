@@ -17,9 +17,20 @@ public class Client {
             Scanner in = new Scanner(clientSocket.getInputStream());
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
 
+            if(in.hasNextLine()) {
+                System.out.println(in.nextLine());
+            }
+
+            Scanner scanner = new Scanner(System.in);
+            out.println(scanner.nextLine());
+            out.flush();
+
+            if(in.hasNextLine()) {
+                System.out.println(in.nextLine());
+            }
+
             // Thread pour envoyer des messages
             Thread sendMessageThread = new Thread(() -> {
-                Scanner scanner = new Scanner(System.in);
                 while (!clientSocket.isClosed()) {
                     String message = scanner.nextLine();
                     out.println(message);
