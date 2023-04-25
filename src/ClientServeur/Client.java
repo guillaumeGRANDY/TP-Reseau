@@ -15,7 +15,7 @@ public class Client {
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
 
             //Envoie du message
-            out.println("Wahou");
+            out.println("message 1 du client");
             out.flush();
 
             //Lit le message
