@@ -1,37 +1,32 @@
 package ClientServeur;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.*;
+import java.util.Scanner;
 
-public class Client implements Runnable{
+public class Client {
     public static void main(String[] args) {
         try {
             //création du Socket
-            DatagramSocket clientSocket = new DatagramSocket();
+            Socket clientSocket = new Socket("127.0.0.1", 3000);
+
+            Scanner in = new Scanner(clientSocket.getInputStream());
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
 
             //Envoie du message
-            String message = "Bonjour Serveur!";
-            byte[] bufferEnvoie = message.getBytes();
-            InetAddress adresseServeur = InetAddress.getByName("127.0.0.1");
-            int portServeur = 3000;
-            DatagramPacket paquet = new DatagramPacket(bufferEnvoie, bufferEnvoie.length, adresseServeur, portServeur);
-            System.out.println("Envoie du paquet: " + paquet);
-            clientSocket.send(paquet);
+            out.println("Wahou");
+            out.flush();
 
-            //Reception du message de retour du serveur
-            byte[] bufferReception = new byte[1024];
-            DatagramPacket paquetDepuisServeur = new DatagramPacket(bufferReception, bufferReception.length);
-            clientSocket.receive(paquetDepuisServeur);
-            System.out.println(new String(paquetDepuisServeur.getData(), 0, paquetDepuisServeur.getLength()) + paquet.getAddress() + ":" + paquet.getPort());
+            //Lit le message
+            if (in.hasNext()) {
+                System.out.println(in.nextLine());
+            }
 
             clientSocket.close();
+
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
-    }
-
-    @Override
-    public void run() {
-
     }
 }
