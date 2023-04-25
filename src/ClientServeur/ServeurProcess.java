@@ -28,15 +28,8 @@ public class ServeurProcess implements Runnable {
     @Override
     public void run() {
 
-        out.println("Entrez un pseudo");
-        out.flush();
-
-        if(in.hasNextLine()) {
-            pseudo = in.nextLine();
-            out.println("Votre pseudo est "+pseudo);
-            out.flush();
-            sendSystemMessageAll(pseudo+" à rejoint la conversation");
-        }
+        newPseudo();
+        sendSystemMessageAll(pseudo+" à rejoint la conversation");
 
         String message="";
         try {
@@ -44,8 +37,17 @@ public class ServeurProcess implements Runnable {
                 message = in.nextLine();
             }
             while (!message.equals("quit")) {
-                sendMessageAll(message);
-                if(in.hasNextLine()) message = in.nextLine();
+                if(message.equals("pseudo"))
+                {
+                    String oldPseudo=pseudo;
+                    newPseudo();
+                    sendSystemMessageAll(oldPseudo+" à changer de pseudo pour "+pseudo);
+                }
+                else
+                {
+                    sendMessageAll(message);
+                }
+                if (in.hasNextLine()) message = in.nextLine();
             }
 
             serveurSocket.close();
@@ -64,6 +66,18 @@ public class ServeurProcess implements Runnable {
         } catch (IOException e) {
             System.out.println("Erreur Receive");
             throw new RuntimeException(e);
+        }
+    }
+
+    public void newPseudo()
+    {
+        out.println("Entrez un pseudo");
+        out.flush();
+
+        if(in.hasNextLine()) {
+            pseudo = in.nextLine();
+            out.println("Votre pseudo est "+pseudo);
+            out.flush();
         }
     }
 
