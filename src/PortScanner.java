@@ -18,9 +18,9 @@ public class PortScanner {
             try {
                 DatagramSocket socket = new DatagramSocket(port);
                 socket.close();
-                resultMap.put(port, "Fermé");
-            } catch (SocketException e) {
                 resultMap.put(port, "Ouvert");
+            } catch (SocketException e) {
+                resultMap.put(port, "Fermé");
             }
         }
         return resultMap;
